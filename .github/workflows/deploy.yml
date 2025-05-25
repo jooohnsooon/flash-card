@@ -9,7 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: npm install
-      - run: npm run deploy
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Authenticate clasp
+        # devDependencies に入れていれば npx で呼び出せます
+        run: npx @google/clasp login --creds="${{ secrets.GAS_CREDENTIALS }}"
+
+      - name: Deploy to Apps Script
+        run: npm run deploy
         env:
+          # （deploy スクリプト呼び出し時も使う場合、必要に応じて渡す）
           GAS_CREDENTIALS: ${{ secrets.GAS_CREDENTIALS }}
