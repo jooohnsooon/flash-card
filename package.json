@@ -6,7 +6,8 @@
     "format": "prettier --write \"**/*.{gs,js,html,json,md}\"",
     "push": "clasp push --force",
     "version-number": "clasp version \"auto deploy $(date +%Y%m%d%H%M%S)\" | awk '{print $3}'",
-    "deploy": "npm run push && VERSION=$(npm run version-number --silent) && clasp deploy --versionNumber $VERSION"
+    "deploy": "npm run push && VERSION=$(npm run version-number --silent) && clasp deploy --versionNumber $VERSION",
+    "deploy:web": "npx clasp push --force && VERSION=$(npx clasp version \"auto deploy $(date +%Y%m%d%H%M%S)\" | awk '{print $3}') && npx clasp deploy --deploymentId AKfycbwkqg1VQa1Jk0ZjemdsFl2Sd3gdm7AeoKEm6tbjiYJ8aAQnCoGIHFmH4-oibfvkrDn6lA --versionNumber $VERSION"
   },
   "devDependencies": {
     "@google/clasp": "^3.0.4-alpha",
