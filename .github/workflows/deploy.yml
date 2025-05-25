@@ -1,0 +1,15 @@
+name: Auto Deploy to GAS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - run: npm run deploy
+        env:
+          GAS_CREDENTIALS: ${{ secrets.GAS_CREDENTIALS }}
