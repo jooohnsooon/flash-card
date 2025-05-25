@@ -9,7 +9,8 @@
     "deploy": "npm run push && VERSION=$(npm run version-number --silent) && clasp deploy --versionNumber $VERSION"
   },
   "devDependencies": {
-    "prettier": "^2.x.x",
-    "husky": "^8.x.x"
+    "@google/clasp": "^3.0.4-alpha",
+    "husky": "^8.x.x",
+    "prettier": "^2.x.x"
   }
 }
