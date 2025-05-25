@@ -23,7 +23,7 @@ jobs:
         run: npx @google/clasp login --creds="${{ secrets.GAS_CREDENTIALS }}"
 
       - name: Deploy to Apps Script
-        run: npm run deploy
+        run: npm run deploy:web
         env:
           # （deploy スクリプト呼び出し時も使う場合、必要に応じて渡す）
           GAS_CREDENTIALS: ${{ secrets.GAS_CREDENTIALS }}
