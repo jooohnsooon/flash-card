@@ -1,0 +1,12 @@
+# 依存パッケージは必ず除外
+node_modules/
+
+# clasp の認証ファイル（各自の環境依存）
+.clasp.json
+
+# npm のロックファイル（必要な場合は残すが、依存に応じて）
+package-lock.json
+
+# IDE・OS 系設定ファイル
+.vscode/
+.DS_Store
