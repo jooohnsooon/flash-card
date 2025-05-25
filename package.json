@@ -1,0 +1,10 @@
+{
+  "name": "my-gas",
+  "version": "1.0.0",
+  "scripts": {
+    "format": "prettier --write \"**/*.{gs,js,html,json,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^2.x.x"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "tabWidth": 2,
+  "useTabs": false,
+  "singleQuote": true,
+  "trailingComma": "none",
+  "overrides": [
+    { "files": "*.gs",   "options": { "parser": "babel" } },
+    { "files": "*.html", "options": { "parser": "html" } }
+  ]
+}
