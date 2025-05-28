@@ -87,14 +87,40 @@
       button:active {
         background-color: #125ccc;
       }
+      html, body { /* ... */ }
+      .container { /* ... */ }
+      .flip-card { /* ... */ touch-action: pan-y; } /* 横スワイプを検知しやすく */
+      .flip-card-inner { /* ... */ }
+      .flipped { /* ... */ }
+      .flip-card-front, .flip-card-back { /* ... */ }
+      button { /* ... */ }
+      /* タグ表示用 */
+      .tag {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 8px 12px;
+        background: rgba(0,0,0,0.6);
+        color: #fff;
+        border-radius: 4px;
+        font-size: 1rem;
+        pointer-events: none;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <div class="flip-card" onclick="flipCard()">
+      <div class="flip-card"
+           id="flipCard"
+           onmousedown="startSwipe(event)"
+           onmouseup="endSwipe(event)"
+           ontouchstart="startSwipe(event)"
+           ontouchend="endSwipe(event)"
+      >
         <div class="flip-card-inner" id="cardInner">
           <div class="flip-card-front" id="cardFront">読み込み中...</div>
           <div class="flip-card-back" id="cardBack">...</div>
+          <div class="tag" id="tag" style="display:none;"></div>
         </div>
       </div>
       <button onclick="nextCard()">次へ進む！</button>
@@ -104,20 +130,22 @@
       let cards = [];
       let current = 0;
       let flipped = false;
+      let startX = 0;
 
       function showCard() {
         const front = document.getElementById('cardFront');
-        const back = document.getElementById('cardBack');
+        const back  = document.getElementById('cardBack');
         front.textContent = cards[current].question;
-        back.textContent = cards[current].answer;
+        back.textContent  = cards[current].answer;
         document.getElementById('cardInner').classList.remove('flipped');
+        document.getElementById('tag').style.display = 'none';
         flipped = false;
       }
 
       function flipCard() {
-        const card = document.getElementById('cardInner');
+        const inner = document.getElementById('cardInner');
         flipped = !flipped;
-        card.classList.toggle('flipped');
+        inner.classList.toggle('flipped');
       }
 
       function nextCard() {
@@ -125,8 +153,38 @@
         showCard();
       }
 
+      function startSwipe(e) {
+        startX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+      }
+
+      function endSwipe(e) {
+        const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        const diff = endX - startX;
+        const threshold = 50; // px
+        if (Math.abs(diff) > threshold) {
+          const remembered = diff > 0; // 右スワイプなら true
+          markCard(remembered);
+        }
+      }
+
+      function markCard(flag) {
+        // タグを表示
+        const tag = document.getElementById('tag');
+        tag.textContent = flag ? '覚えている✅' : '忘れている❌';
+        tag.style.display = 'block';
+
+        // スプレッドシートにフラグを送信
+        google.script.run
+          .withSuccessHandler(() => {
+            // 少し待ってから次のカードへ
+            setTimeout(nextCard, 800);ï
+          })
+          .setFlag(cards[current].row, flag);
+      }
+
+      // 最初のロード
       google.script.run
-        .withSuccessHandler(function (data) {
+        .withSuccessHandler(function(data) {
           cards = data;
           showCard();
         })
