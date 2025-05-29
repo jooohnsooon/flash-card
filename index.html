@@ -59,17 +59,12 @@
     <div class="container">
       <div
         class="flip-card"
-        id="flipCard"
         onmousedown="startSwipe(event)"
         onmouseup="endSwipe(event)"
         ontouchstart="startSwipe(event)"
         ontouchend="endSwipe(event)"
       >
-        <div
-          class="flip-card-inner"
-          id="cardInner"
-          onclick="flipCard()"
-        >
+        <div class="flip-card-inner" id="cardInner" onclick="flipCard()">
           <div class="flip-card-front" id="cardFront">読み込み中...</div>
           <div class="flip-card-back" id="cardBack">...</div>
           <div class="tag" id="tag" style="display:none;"></div>
@@ -83,18 +78,20 @@
 
       function showCard() {
         const card = document.getElementById('cardInner');
+        // スタイルリセット
         card.style.transition = 'none';
         card.style.transform = '';
         card.style.opacity = '1';
         document.getElementById('tag').style.display = 'none';
         flipped = false;
-        const front = document.getElementById('cardFront');
-        const back  = document.getElementById('cardBack');
-        front.textContent = cards[current].question;
-        back.textContent  = cards[current].answer;
-        // 次回の flip 用にトランジションを戻す
+
+        // テキスト反映
+        document.getElementById('cardFront').textContent = cards[current].question;
+        document.getElementById('cardBack').textContent  = cards[current].answer;
+
+        // トランジションを戻す
         requestAnimationFrame(() => {
-          card.style.transition = 'transform 0.6s, opacity 0.4s';
+          card.style.transition = 'transform 0.6s';
         });
       }
 
@@ -114,51 +111,43 @@
 
       function endSwipe(e) {
         const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-        const diff = endX - startX, threshold = 50;
-        if (Math.abs(diff) > threshold) {
-          const remembered = diff > 0;
-          animateSwipe(diff, remembered);
+        const diff = endX - startX;
+        if (Math.abs(diff) > 50) {
+          animateSwipe(diff, diff > 0);
         }
       }
 
       function animateSwipe(diff, remembered) {
         const card = document.getElementById('cardInner');
         const dir  = diff > 0 ? 1 : -1;
-        // スライド＆フェードアウト、fill:none で終了後に元に戻る
-        const anim = card.animate([
+        card.animate([
           { transform: 'translateX(0)', opacity: 1 },
           { transform: `translateX(${dir * 100}%) rotate(${dir * 20}deg)`, opacity: 0 }
         ], {
           duration: 300,
           easing: 'ease-in-out',
           fill: 'none'
-        });
-        anim.onfinish = () => markCard(remembered);
+        }).onfinish = () => {
+          markCardImmediate(remembered);
+        };
       }
 
-      function markCard(flag) {
+      function markCardImmediate(flag) {
         // タグ表示
         const tag = document.getElementById('tag');
         tag.textContent = flag ? '覚えている✅' : '忘れている❌';
         tag.style.display = 'block';
 
-        // シートに書き込み
-        google.script.run
-          .withSuccessHandler(() => {
-            setTimeout(() => {
-              nextCard();
-            }, 800);
-          })
-          .setFlag(cards[current].row, flag);
+        // 書き込み後すぐ次のカード
+        google.script.run.withSuccessHandler(nextCard)
+                         .setFlag(cards[current].row, flag);
       }
 
       // 初期ロード
-      google.script.run
-        .withSuccessHandler(data => {
-          cards = data;
-          showCard();
-        })
-        .getCards();
+      google.script.run.withSuccessHandler(data => {
+        cards = data;
+        showCard();
+      }).getCards();
     </script>
   </body>
 </html>
